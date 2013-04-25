@@ -478,6 +478,10 @@ class SphinxQuerySet(object):
                         args = (name, values, exclude)
                     elif lookup == 'range':
                         args = (name, values[0], values[1], exclude)
+                    elif lookup == 'all':
+                        for value in values:
+                            client.SetFilter(name, [value], exclude)
+                        continue
                     else:
                         raise NotImplementedError, 'Related object and/or field lookup "%s" not supported' % lookup
                     if is_float:

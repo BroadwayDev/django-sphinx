@@ -197,6 +197,8 @@ class SphinxQuerySet(object):
         self._select_related        = False
         self._select_related_args   = {}
         self._select_related_fields = []
+        self._prefetch_related      = False
+        self._prefetch_related_fields = []
         self._filters               = {}
         self._excludes              = {}
         self._extra                 = {}
@@ -382,6 +384,15 @@ class SphinxQuerySet(object):
             _select_related_fields=_args,
             _select_related_args=_kwargs,
         )
+
+    def prefetch_related(self, *args, **kwargs):
+        _args = self._prefetch_related_fields[:]
+        _args.extend(args)
+
+        return self._clone(
+            _prefetch_related=True,
+            _prefetch_related_fields=_args,
+        )
     
     def extra(self, **kwargs):
         extra = self._extra.copy()
@@ -478,6 +489,10 @@ class SphinxQuerySet(object):
                         args = (name, values, exclude)
                     elif lookup == 'range':
                         args = (name, values[0], values[1], exclude)
+                    elif lookup == 'all':
+                        for value in values:
+                            client.SetFilter(name, [value], exclude)
+                        continue
                     else:
                         raise NotImplementedError, 'Related object and/or field lookup "%s" not supported' % lookup
                     if is_float:
@@ -549,6 +564,8 @@ class SphinxQuerySet(object):
         queryset = self.model._default_manager
         if self._select_related:
             queryset = queryset.select_related(*self._select_related_fields, **self._select_related_args)
+        if self._prefetch_related:
+            queryset = queryset.prefetch_related(*self._prefetch_related_fields)
         if self._extra:
             queryset = queryset.extra(**self._extra)
         return queryset.get(**kwargs)
@@ -573,6 +590,8 @@ class SphinxQuerySet(object):
                 queryset = self.get_query_set(self.model)
                 if self._select_related:
                     queryset = queryset.select_related(*self._select_related_fields, **self._select_related_args)
+                if self._prefetch_related:
+                    queryset = queryset.prefetch_related(*self._prefetch_related_fields)
                 if self._extra:
                     queryset = queryset.extra(**self._extra)
 

@@ -10,7 +10,6 @@ setup(
     author='David Cramer',
     author_email='dcramer@gmail.com',
     url='http://github.com/dcramer/django-sphinx',
-    install_requires=['django'],
     description = 'An integration layer bringing Django and Sphinx Search together.',
     packages=find_packages(),
     include_package_data=True,

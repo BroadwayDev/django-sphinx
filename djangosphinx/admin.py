@@ -9,7 +9,7 @@ class SphinxModelAdmin(ModelAdmin):
     search_fields = ['pk']
     actions = None
     
-    def queryset(self, request):
+    def get_queryset(self, request):
         return SphinxQuerySet(
             model=self.model,
             index=self.index,
@@ -19,8 +19,8 @@ class SphinxModelAdmin(ModelAdmin):
         return SphinxChangeList
 
 class SphinxChangeList(ChangeList):
-    def get_query_set(self):
-        qs = self.root_query_set
+    def get_queryset(self):
+        qs = self.root_queryset
         lookup_params = self.params.copy() # a dictionary of the query string
         for i in (ALL_VAR, ORDER_VAR, ORDER_TYPE_VAR, SEARCH_VAR, IS_POPUP_VAR):
             if i in lookup_params:
@@ -78,7 +78,7 @@ class SphinxChangeList(ChangeList):
         return qs
     
     def get_results(self, request):
-        paginator = Paginator(self.query_set, self.list_per_page)
+        paginator = Paginator(self.queryset, self.list_per_page)
         # Get the number of objects, with admin filters applied.
         result_count = paginator.count
 
